@@ -3,7 +3,8 @@
 #include <PubSubClient.h>
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
-#include <WiFiManager.h>  
+#include <WiFiManager.h>
+#include <Servo.h>  
 
 //***WiFi network SSID and Password and MQTT broker address***//
 const char* ssid = "ShipperBeeDemo";
@@ -17,6 +18,9 @@ const char* deviceID="ShipperBee-";
 //***Global Variables***//
 WiFiClient espClient;
 PubSubClient client(espClient);
+
+//***Servo library***//
+Servo myservo;  //create servo object to control a servo
 
 void setup_wifi() {
 
@@ -97,11 +101,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     //***Parse response and execute command***//
     if(strcmp(outbd,"Open")==0){
-      digitalWrite(BUILTIN_LED, LOW);
+     /* digitalWrite(BUILTIN_LED, LOW);
       digitalWrite(12, HIGH);
       delay(1000);
       digitalWrite(12,LOW);
-      digitalWrite(BUILTIN_LED,HIGH);
+      digitalWrite(BUILTIN_LED,HIGH);*/
+      
+      myservo.write(140); //Servo open door positon
+      delay(300);
+      myservo.write(100); //Servo return.
     } else{
       digitalWrite(BUILTIN_LED, HIGH);
     }
@@ -116,6 +124,9 @@ void setup() {
   
   digitalWrite(12,LOW);
   digitalWrite(BUILTIN_LED, HIGH);
+
+  myservo.attach(4);  //attaches the servo on GIO2 to the servo object.
+  myservo.write(100); //Initial servo position.
   
   Serial.begin(115200);
   setup_wifi();
